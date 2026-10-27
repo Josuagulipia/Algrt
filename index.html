@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Algoritma Quest</title>
+<style>
+:root{--bg:#f4f1ff;--card:#fff;--tx:#1d1b33;--mu:#5d5a7a;--pr:#5b3fd6;--ok:#157a3d;--no:#b42318;--bd:#d9d4f5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141225;--card:#1f1c38;--tx:#ece9ff;--mu:#b0abd4;--pr:#9b86ff;--ok:#4ade80;--no:#ff8a80;--bd:#37325f}}
+:root[data-theme="dark"]{--bg:#141225;--card:#1f1c38;--tx:#ece9ff;--mu:#b0abd4;--pr:#9b86ff;--ok:#4ade80;--no:#ff8a80;--bd:#37325f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,sans-serif}
+header{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--bd);flex-wrap:wrap}
+h1{font-size:1.2rem;margin:0}h2{margin:.2rem 0 .6rem}
+button{font:inherit;min-height:44px;padding:6px 14px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+button.p{background:var(--pr);color:#fff;border-color:var(--pr)}button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:3px solid var(--pr)}
+main{display:grid;grid-template-columns:260px 1fr;gap:16px;max-width:1100px;margin:0 auto;padding:16px}
+@media(max-width:760px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px;overflow-x:auto}
+nav button{display:block;width:100%;text-align:left;margin-bottom:6px}nav .cur{border-color:var(--pr);font-weight:700}
+.bar{height:12px;background:var(--bd);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--pr);transition:width .4s}
+.src{border-left:4px solid var(--pr);padding-left:12px}.ai{border-left:4px solid #e0a100;padding-left:12px;color:var(--mu)}
+.opt{display:block;width:100%;text-align:left;margin:6px 0}.opt.ok{border-color:var(--ok)}.opt.no{border-color:var(--no)}
+.fb{margin-top:8px;font-weight:600}.good{color:var(--ok)}.bad{color:var(--no)}
+table{border-collapse:collapse}td,th{border:1px solid var(--bd);padding:4px 8px}
+code,pre{background:var(--bg);border-radius:6px;padding:2px 6px}pre{padding:10px;overflow-x:auto}
+.chips span{display:inline-block;background:var(--bd);border-radius:20px;padding:2px 10px;margin:2px}
+#chat{max-height:220px;overflow:auto}.boss{font-size:2.4rem}
+.cf{position:fixed;top:-20px;font-size:22px;animation:f 1.6s linear forwards;pointer-events:none}@keyframes f{to{transform:translateY(105vh) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.cf{display:none}.bar i{transition:none}}
+.noanim .cf{display:none}
+</style></head><body>
+<header><h1>🧭 Algoritma Quest</h1><div id="stat" aria-live="polite"></div>
+<div><button id="anim" aria-pressed="true">✨ Animasi</button> <button id="th" aria-label="Ganti tema">🌓</button></div></header>
+<main><aside><div class="card"><div class="bar"><i id="pb" style="width:0"></i></div><small id="pt"></small>
+<p><button class="p" id="cont" style="width:100%">Lanjutkan Petualangan</button></p></div>
+<nav id="nav" class="card" aria-label="Peta petualangan"></nav>
+<div class="card"><b>Aturan skor</b><br><small>Benar percobaan pertama: 10 XP. Benar setelah petunjuk/percobaan ulang: 5 XP. Salah: 0 XP. Boss Terakhir: 15 XP per soal, lulus jika ≥ 60% benar. XP hanya dihitung sekali per soal.</small></div></aside>
+<section id="v"></section></main>
+<script>
+const S=[
+{t:"Apa Itu Algoritma?",g:"Menjelaskan pengertian algoritma dan memberi contohnya.",
+b:`<p>Algoritma adalah urutan langkah-langkah yang disusun secara logis, teratur, dan jelas untuk menyelesaikan suatu masalah atau mencapai tujuan tertentu. Langkah-langkah tersebut dilakukan sesuai urutan sehingga hasil yang diharapkan dapat diperoleh.</p><p>Sederhananya, algoritma adalah petunjuk langkah demi langkah. Kita sebenarnya sering menggunakan algoritma dalam kehidupan sehari-hari, meskipun tidak selalu menyebutnya dengan istilah tersebut.</p><p><b>Contoh: membuat mi instan</b></p><ol><li>Siapkan panci, air, mi, bumbu, dan alat makan.</li><li>Tuangkan air ke dalam panci.</li><li>Panaskan air hingga mendidih.</li><li>Masukkan mi ke dalam air mendidih.</li><li>Tunggu sampai mi matang sambil sesekali diaduk.</li><li>Masukkan bumbu ke dalam mangkuk.</li><li>Tuangkan mi dan kuah ke dalam mangkuk, lalu aduk.</li><li>Mi siap disajikan.</li></ol><p>Urutan langkah dapat memengaruhi hasil. Catatan: contoh memasak hanya ilustrasi; ikuti aturan keselamatan dan minta bantuan orang dewasa jika diperlukan.</p>`,
+s:"Algoritma = urutan langkah logis, teratur, dan jelas untuk mencapai tujuan; urutan memengaruhi hasil.",
+q:{k:"order",p:"Susun langkah membuat mi instan dengan urutan yang tepat.",o:["Siapkan panci, air, mi, bumbu, dan alat makan","Tuangkan air ke dalam panci","Panaskan air hingga mendidih","Masukkan mi ke dalam air mendidih","Tuangkan mi dan kuah ke dalam mangkuk"],h:"Air harus panas sebelum mi dimasukkan.",e:"Urutan langkah memengaruhi hasil, seperti pada materi."}},
+{t:"Mengapa Algoritma Penting?",g:"Menyebutkan manfaat algoritma.",
+b:`<p>Algoritma membantu kita menyelesaikan masalah dengan cara yang terarah. Tanpa langkah yang jelas, kita bisa bingung, melewatkan tahapan penting, atau melakukan pekerjaan yang sama berulang kali.</p><ol><li><b>Membuat penyelesaian lebih teratur.</b> Kita mengetahui langkah dari awal sampai akhir.</li><li><b>Mengurangi kesalahan.</b> Langkah yang jelas membantu memeriksa tahapan yang terlewat atau tidak berurutan.</li><li><b>Menghemat waktu dan tenaga.</b> Kita dapat memilih urutan yang efisien.</li><li><b>Memudahkan orang lain mengikuti petunjuk.</b></li><li><b>Menjadi dasar pembuatan program komputer.</b> Komputer membutuhkan instruksi yang teratur.</li><li><b>Memudahkan pemeriksaan dan perbaikan.</b> Hasil salah dapat ditelusuri langkah demi langkah.</li></ol>`,
+s:"Algoritma membuat penyelesaian teratur, mengurangi kesalahan, menghemat waktu, mudah diikuti, dasar program, dan mudah diperiksa.",
+q:{k:"mc",p:"Hasil program salah. Manfaat algoritma yang paling membantu di sini adalah…",o:["Memudahkan pemeriksaan dan perbaikan","Membuat komputer lebih cepat","Mengurangi jumlah data","Menghapus semua langkah"],a:0,h:"Ingat: menelusuri langkah demi langkah.",e:"Jika hasil salah, kita menelusuri langkah untuk menemukan penyebabnya."}},
+{t:"Ciri-Ciri Algoritma yang Baik",g:"Mengenali ciri algoritma yang baik.",
+b:`<ol><li><b>Memiliki tujuan yang jelas.</b></li><li><b>Langkah-langkahnya jelas</b> dan tidak membingungkan.</li><li><b>Memiliki urutan yang logis.</b></li><li><b>Memiliki awal dan akhir.</b></li><li><b>Dapat dilaksanakan</b> oleh pelaksana, manusia atau komputer.</li><li><b>Menghasilkan keluaran yang diharapkan.</b></li><li><b>Tidak berputar tanpa akhir tanpa alasan.</b> Pengulangan harus memiliki kondisi berhenti.</li></ol>`,
+s:"Algoritma baik: tujuan jelas, langkah jelas, urutan logis, ada awal-akhir, dapat dilaksanakan, hasil sesuai, dan berhenti.",
+q:{k:"tf",p:"Benar atau salah: algoritma yang baik boleh berputar tanpa akhir tanpa kondisi berhenti.",a:1,h:"Lihat ciri nomor terakhir.",e:"Pengulangan harus memiliki kondisi berhenti."}},
+{t:"Input, Proses, dan Output",g:"Mengidentifikasi input, proses, dan output.",
+b:`<table><tr><th>Unsur</th><th>Arti</th><th>Contoh total belanja</th></tr><tr><td>Input</td><td>Data yang diberikan sebelum proses.</td><td>Harga dan jumlah barang.</td></tr><tr><td>Process</td><td>Langkah/perhitungan terhadap masukan.</td><td>Kalikan harga dengan jumlah, lalu jumlahkan.</td></tr><tr><td>Output</td><td>Hasil setelah proses selesai.</td><td>Total uang yang dibayar.</td></tr></table><p>Contoh angka: seorang siswa membeli 2 buku seharga Rp5.000 per buku. Input: harga Rp5.000 dan jumlah 2. Proses: 5.000 × 2. Output: Rp10.000.</p><p>Tidak semua algoritma harus menerima input dari pengguna; ada yang memakai data yang sudah tersedia atau tugas otomatis.</p>`,
+s:"Input = data masuk, proses = pengolahan, output = hasil.",
+q:{k:"fill",p:"Siswa membeli 3 buku seharga Rp4.000 per buku. Berapa output (tulis angkanya saja)?",a:["12000","12.000","rp12000","rp12.000"],h:"Proses: harga × jumlah.",e:"4.000 × 3 = Rp12.000."}},
+{t:"Algoritma dalam Kehidupan Sehari-hari",g:"Mengenali algoritma di sekitar kita.",
+b:`<ol><li><b>Berangkat ke sekolah:</b> bangun tidur → mandi dan bersiap → seragam → sarapan jika tersedia → periksa perlengkapan → berangkat.</li><li><b>Mengirim tugas lewat email:</b> buka aplikasi email → tulis pesan → alamat penerima → subjek → lampirkan berkas → periksa kembali → Kirim.</li><li><b>Meminjam buku:</b> cari buku → periksa ketersediaan → bawa ke petugas → tunjukkan kartu anggota → petugas mencatat → bawa buku sesuai aturan.</li><li><b>Membawa payung:</b> periksa prakiraan cuaca → jika kemungkinan hujan tinggi, bawa payung → jika tidak, pertimbangkan kebutuhan lain. (Ada keputusan berdasarkan kondisi.)</li><li><b>Menghitung nilai rata-rata:</b> catat nilai → jumlahkan → hitung banyaknya → bagi jumlah dengan banyaknya → tuliskan hasil.</li></ol>`,
+s:"Algoritma muncul dalam rutinitas harian, sebagian memuat keputusan berdasarkan kondisi.",
+q:{k:"mc",p:"Contoh mana yang menunjukkan keputusan berdasarkan kondisi?",o:["Menentukan membawa payung dari prakiraan cuaca","Mencatat nilai","Membuka aplikasi email","Mandi dan bersiap"],a:0,h:"Cari langkah yang memakai “jika”.",e:"Membawa payung bergantung pada kemungkinan hujan."}},
+{t:"Bentuk Penulisan Algoritma",g:"Membedakan bahasa sehari-hari, pseudocode, dan flowchart.",
+b:`<p><b>1. Deskriptif</b> – kalimat biasa, mudah dipahami pemula. Contoh: Mulai → masukkan nilai → jika nilai 75 atau lebih tampilkan “Lulus” → jika kurang dari 75 tampilkan “Belum lulus” → Selesai.</p><p><b>2. Pseudocode (kode semu)</b> – kalimat singkat menyerupai struktur bahasa pemrograman, tetapi tidak terikat bahasa tertentu.</p><pre>MULAI
+INPUT nilai
+JIKA nilai >= 75 MAKA
+    TAMPILKAN "Lulus"
+JIKA TIDAK
+    TAMPILKAN "Belum lulus"
+SELESAI</pre><p><b>3. Flowchart (diagram alir)</b> – diagram bentuk tertentu yang dihubungkan panah.</p><table><tr><th>Simbol</th><th>Nama</th><th>Fungsi</th></tr><tr><td>Oval</td><td>Terminator</td><td>Awal/akhir proses</td></tr><tr><td>Persegi panjang</td><td>Process</td><td>Pengolahan data</td></tr><tr><td>Jajar genjang</td><td>Input/Output</td><td>Data masuk/hasil</td></tr><tr><td>Belah ketupat</td><td>Decision</td><td>Pemeriksaan kondisi (Ya/Tidak)</td></tr><tr><td>Garis panah</td><td>Flowline</td><td>Arah urutan</td></tr></table>
+<svg viewBox="0 0 520 70" width="100%" role="img" aria-label="Ilustrasi pengganti (bukan gambar asli): Mulai, Masukkan nilai, Nilai ≥ 75?, Lulus / Belum lulus"><g fill="none" stroke="currentColor"><rect x="5" y="20" width="70" height="30" rx="15"/><path d="M75 35h25M190 35h25M300 35h20"/><path d="M100 20h90l-12 30H88z"/><path d="M265 8l50 27-50 27-50-27z" transform="translate(5 0)"/></g><g fill="currentColor" font-size="11"><text x="22" y="40">Mulai</text><text x="110" y="40">Nilai</text><text x="238" y="40">≥ 75?</text><text x="330" y="30">Ya: Lulus</text><text x="330" y="50">Tidak: Belum lulus</text></g></svg><div class="ai">Ilustrasi di atas dibuat sebagai pengganti, bukan gambar asli dari dokumen sumber.</div>`,
+s:"Tiga bentuk penulisan: deskriptif, pseudocode, flowchart. Decision memakai belah ketupat.",
+q:{k:"mc",p:"Simbol flowchart untuk pemeriksaan kondisi Ya/Tidak adalah…",o:["Belah ketupat","Oval","Jajar genjang","Persegi panjang"],a:0,h:"Bentuknya seperti wajik.",e:"Belah ketupat = Decision."}},
+{t:"Tiga Struktur Dasar Algoritma",g:"Membedakan urutan, percabangan, dan perulangan.",
+b:`<p><b>1. Urutan (Sequence)</b> – instruksi dilakukan satu demi satu sesuai susunannya. Contoh: masukkan nama → masukkan kelas → tampilkan nama dan kelas.</p><p><b>2. Percabangan (Selection)</b> – memilih tindakan berdasarkan kondisi.</p><pre>JIKA baterai &lt; 20% MAKA
+    TAMPILKAN "Isi daya ponsel"
+JIKA TIDAK
+    TAMPILKAN "Baterai masih cukup"</pre><p><b>3. Perulangan (Iteration/Looping)</b> – menjalankan langkah yang sama beberapa kali.</p><pre>UNTUK angka dari 1 sampai 5
+    TAMPILKAN angka
+SELESAI PERULANGAN</pre><p>Perulangan harus memiliki aturan berhenti. Jika kondisi berhenti tidak pernah tercapai, terjadi perulangan tak berujung (infinite loop).</p>`,
+s:"Urutan: satu per satu. Percabangan: pilih berdasarkan kondisi. Perulangan: ulang dengan syarat berhenti.",
+q:{k:"match",p:"Cocokkan situasi dengan strukturnya.",o:[["Menulis angka 1 sampai 5","Perulangan"],["Jika baterai < 20%, isi daya","Percabangan"],["Masukkan nama lalu kelas lalu tampilkan","Urutan"]],ch:["Urutan","Percabangan","Perulangan"],h:"Kata kunci: jika / ulang / satu demi satu.",e:"Sesuai tiga struktur dasar pada materi."}},
+{t:"Contoh Algoritma Lengkap",g:"Membaca dan menguji contoh algoritma.",
+b:`<p><b>Contoh 1 – Luas persegi panjang.</b> Input: panjang dan lebar. Proses: luas = panjang × lebar. Output: luas. Panjang 8 cm, lebar 4 cm → 8 × 4 = 32 cm².</p><p><b>Contoh 2 – Genap atau ganjil.</b> Bilangan genap habis dibagi 2.</p><pre>MULAI
+INPUT bilangan
+JIKA bilangan MOD 2 = 0 MAKA
+    TAMPILKAN "Genap"
+JIKA TIDAK
+    TAMPILKAN "Ganjil"
+SELESAI</pre><p>MOD berarti sisa hasil pembagian. 8 MOD 2 = 0 (genap); 7 MOD 2 = 1 (ganjil).</p><p><b>Contoh 3 – Rata-rata tiga nilai.</b> Nilai 80, 90, 70: jumlah 240, rata-rata 240 ÷ 3 = 80.</p><p><b>Contoh 4 – Presensi siswa.</b> Masukkan nama → periksa hadir → catat “Hadir” atau “Tidak hadir” → simpan catatan. Data tambahan seperti tanggal dan kelas bergantung pada tujuan aplikasi; ini berhubungan dengan abstraksi.</p>`,
+s:"Uji algoritma dengan contoh data: luas, genap/ganjil, rata-rata, presensi.",
+q:{k:"fill",p:"Nilai tugas 60, 70, dan 80. Berapa rata-rata? (angka saja)",a:["70"],h:"Jumlahkan lalu bagi 3.",e:"(60 + 70 + 80) ÷ 3 = 70."}},
+{t:"Hubungan Abstraksi dengan Algoritma",g:"Membedakan abstraksi dan algoritma.",
+b:`<table><tr><th>Aspek</th><th>Abstraksi</th><th>Algoritma</th></tr><tr><td>Fokus</td><td>Memilih informasi penting, mengabaikan detail tak relevan.</td><td>Menyusun langkah penyelesaian masalah.</td></tr><tr><td>Pertanyaan kunci</td><td>Informasi apa yang benar-benar dibutuhkan?</td><td>Langkah apa, dalam urutan apa?</td></tr><tr><td>Contoh presensi</td><td>Memilih nama, tanggal, status kehadiran.</td><td>Urutan masukkan nama, periksa kehadiran, simpan status, tampilkan hasil.</td></tr></table><p>Abstraksi membantu menentukan <i>apa</i> yang penting, sedangkan algoritma menentukan <i>bagaimana</i> menyelesaikan masalah dengan langkah teratur.</p>`,
+s:"Abstraksi = apa yang penting. Algoritma = bagaimana langkahnya.",
+q:{k:"mc",p:"Guru membuat aplikasi rata-rata nilai dan memilih hanya data nilai yang diperlukan. Ini adalah…",o:["Abstraksi","Perulangan tak berujung","Flowchart","Output"],a:0,h:"Memilih yang penting, mengabaikan yang tidak.",e:"Memilih data yang diperlukan adalah abstraksi."}},
+{t:"Kesalahan yang Perlu Dihindari",g:"Mengenali kesalahan umum dalam algoritma.",
+b:`<ul><li><b>Langkah tidak lengkap:</b> ada tahapan penting terlewat.</li><li><b>Instruksi membingungkan:</b> “lakukan dengan benar” terlalu umum.</li><li><b>Urutan tidak tepat:</b> langkah dilakukan sebelum syaratnya terpenuhi.</li><li><b>Kondisi tidak mencakup semua kemungkinan.</b></li><li><b>Perulangan tidak memiliki batas berhenti.</b></li><li><b>Tidak menguji hasil.</b></li></ul><p>Cara memperbaiki: baca ulang setiap langkah, coba dengan beberapa contoh input, lalu periksa apakah output sesuai tujuan.</p>`,
+s:"Hindari langkah kurang, instruksi samar, urutan salah, kondisi tak lengkap, loop tanpa henti, dan tanpa uji.",
+q:{k:"mc",p:"Algoritma hanya menulis “Lulus” untuk nilai tinggi tanpa hasil untuk nilai lain. Kesalahannya…",o:["Kondisi tidak mencakup semua kemungkinan","Langkah terlalu banyak","Perulangan tak berujung","Tidak ada input"],a:0,h:"Apa yang terjadi pada nilai lainnya?",e:"Semua kemungkinan kondisi harus tercakup."}},
+{t:"Cara Menyusun Algoritma",g:"Menyusun algoritma dengan tujuh langkah.",
+b:`<ol><li><b>Pahami masalahnya.</b></li><li><b>Tentukan input dan output.</b></li><li><b>Tentukan prosesnya.</b></li><li><b>Susun langkah secara logis</b> (tambahkan percabangan/perulangan bila perlu).</li><li><b>Pilih bentuk penulisan:</b> bahasa sehari-hari, pseudocode, atau flowchart.</li><li><b>Uji algoritma</b> dengan data berbeda, termasuk kondisi khusus.</li><li><b>Perbaiki jika diperlukan.</b></li></ol>`,
+s:"Pahami → input/output → proses → susun → pilih bentuk → uji → perbaiki.",
+q:{k:"order",p:"Urutkan tahap menyusun algoritma.",o:["Pahami masalahnya","Tentukan input dan output","Tentukan prosesnya","Susun langkah secara logis","Uji algoritma"],h:"Mulai dari memahami, akhiri dengan menguji.",e:"Sesuai tujuh tahap pada materi."}}];
+const BQ=[
+{k:"mc",p:"Kasus: program menghitung total belanja memakai harga dan jumlah barang. Manakah yang termasuk input?",o:["Harga dan jumlah barang","Total uang","Perkalian harga × jumlah","Tombol Selesai"],a:0,h:"Input = data sebelum proses.",e:"Harga dan jumlah adalah masukan."},
+{k:"mc",p:"Kasus: loop “selama x < 10 tampilkan x” tidak pernah mengubah x. Masalahnya?",o:["Tidak ada kondisi berhenti yang tercapai","Terlalu sedikit input","Flowchart salah simbol","Urutan terbalik"],a:0,h:"Apa yang membuat x mencapai 10?",e:"Itu infinite loop."},
+{k:"fill",p:"Hitung 17 MOD 2 (angka saja).",a:["1"],h:"Sisa bagi 17 dengan 2.",e:"17 = 2 × 8 + 1."},
+{k:"tf",p:"Benar atau salah: pseudocode terikat pada aturan satu bahasa pemrograman tertentu.",a:1,h:"Kode semu.",e:"Pseudocode tidak terikat bahasa tertentu."},
+{k:"mc",p:"Kasus: algoritma presensi hanya mencatat “Hadir” dan lupa mencatat siswa yang tidak hadir. Kesalahannya?",o:["Kondisi tidak mencakup semua kemungkinan","Perulangan tak berujung","Simbol flowchart salah","Input terlalu banyak"],a:0,h:"Semua kemungkinan harus ada hasilnya.",e:"Kondisi harus mencakup hadir dan tidak hadir."},
+{k:"mc",p:"Kasus: guru ingin menghitung rata-rata nilai. Urutan yang tepat adalah…",o:["Abstraksi memilih data nilai, lalu algoritma menyusun langkah penghitungan","Menghitung dulu tanpa data","Menampilkan hasil sebelum menjumlahkan","Menulis flowchart tanpa tujuan"],a:0,h:"Apa yang penting dulu, lalu bagaimana langkahnya.",e:"Abstraksi menentukan apa yang penting, algoritma menentukan bagaimana."}];
+const $=s=>document.querySelector(s);let st={d:{},cur:0,boss:null,theme:null,anim:true};
+try{Object.assign(st,JSON.parse(localStorage.getItem("aq")||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem("aq",JSON.stringify(st))}catch(e){}};
+const xp=()=>Object.values(st.d).reduce((a,b)=>a+(b.x||0),0)+((st.boss&&st.boss.x)||0);
+const done=i=>st.d[i]&&st.d[i].ok;const allDone=()=>S.every((_,i)=>done(i));
+const lvl=()=>1+Math.floor(xp()/40);
+const sh=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);st.cur="home";
+const M=(p,r,a,b,c,e)=>{const o=sh([r,a,b,c]);return{k:"mc",p,o,a:o.indexOf(r),h:"Baca lagi bagian materi ini.",e:e||"Sesuai materi: "+r+"."}};
+const T=(p,v,e)=>({k:"tf",p:"Benar atau salah: "+p,a:v?0:1,h:"Baca lagi bagian materi ini.",e:e||"Sesuai materi."});
+const shq=q=>{if(q.k!=="mc")return q;const o=sh(q.o),r=q.o[q.a];return{...q,o,a:o.indexOf(r)}};
+const X=[[
+M("Pengertian algoritma yang paling tepat adalah…","Urutan langkah logis, teratur, dan jelas untuk menyelesaikan masalah","Kumpulan data acak","Bahasa pemrograman tertentu","Gambar tanpa langkah"),
+T("Kita sering memakai algoritma sehari-hari meskipun tidak menyebutnya demikian.",1),
+M("Algoritma sederhananya adalah…","petunjuk langkah demi langkah","kumpulan gambar","daftar nama","jenis kabel"),
+M("Pada contoh mi instan, langkah tepat sebelum memasukkan mi adalah…","Memanaskan air hingga mendidih","Menuang mi ke mangkuk","Mengaduk bumbu","Menyajikan mi"),
+T("Urutan langkah dapat memengaruhi hasil.",1),
+M("Langkah dilakukan sesuai urutan agar…","hasil yang diharapkan diperoleh","langkah makin banyak","tujuan hilang","urutan diabaikan"),
+T("Saat memakai kompor, keselamatan boleh diabaikan.",0,"Materi mengingatkan: ikuti aturan keselamatan dan minta bantuan orang dewasa."),
+M("Langkah pertama pada contoh mi instan adalah…","Menyiapkan panci, air, mi, bumbu, dan alat makan","Mengaduk mi","Menuang kuah","Menyajikan mi"),
+M("Jika urutan langkah memasak dibalik-balik…","hasil dan prosesnya bisa berbeda","hasil pasti sama","tidak ada pengaruh","mi pasti matang")],[
+M("Tanpa langkah yang jelas, kita bisa…","bingung dan melewatkan tahapan penting","selalu lebih cepat","tidak perlu bekerja","menghapus masalah"),
+T("Algoritma membantu mengurangi kesalahan.",1,"Langkah jelas memudahkan memeriksa tahapan yang terlewat."),
+M("“Menghemat waktu dan tenaga” berarti kita dapat…","memilih urutan yang efisien","menambah pekerjaan ulang","melewati tujuan","menebak maksud"),
+M("Algoritma yang jelas memudahkan orang lain karena…","mereka tidak perlu menebak-nebak maksudnya","langkahnya dirahasiakan","tidak ada urutan","mereka harus bertanya terus"),
+M("Mengapa komputer membutuhkan algoritma?","Komputer perlu instruksi yang teratur","Komputer menebak sendiri","Komputer tidak butuh tujuan","Komputer hanya butuh gambar"),
+T("Algoritma tidak membantu menelusuri penyebab hasil yang salah.",0,"Kita dapat menelusuri langkah demi langkah untuk menemukan penyebabnya."),
+M("Pekerjaan yang sama berulang kali tanpa perlu dapat terjadi karena…","langkah tidak jelas","algoritma yang baik","input benar","flowchart"),
+M("Manfaat “membuat penyelesaian lebih teratur” berarti…","kita tahu langkah dari awal sampai akhir","data berkurang","input dihapus","soal dibuat"),
+T("Algoritma menjadi dasar pembuatan program komputer.",1)],[
+M("Salah satu ciri algoritma yang baik adalah memiliki…","awal dan akhir","langkah rahasia","tujuan berubah-ubah","urutan acak"),
+T("Instruksi algoritma harus dapat dilaksanakan oleh pelaksananya.",1),
+M("Instruksi “lakukan dengan benar” kurang baik karena…","terlalu umum dan membingungkan","terlalu jelas","terlalu pendek","tidak ada kata kerja"),
+M("Pelaksana algoritma dapat berupa…","manusia atau komputer","hanya manusia","hanya robot","hanya buku"),
+M("Pengulangan harus memiliki…","kondisi berhenti","nilai acak","gambar","nama","Agar proses tidak berjalan terus-menerus."),
+T("Jika langkah dilakukan benar dan masukan sesuai, algoritma menghasilkan keluaran yang diharapkan.",1),
+M("Langkah disusun sesuai hubungan dan kebutuhan proses. Ciri ini disebut…","urutan yang logis","tujuan yang jelas","dapat dilaksanakan","awal dan akhir"),
+M("“Memiliki tujuan yang jelas” berarti algoritma dibuat untuk…","menyelesaikan masalah atau tugas tertentu","apa saja tanpa hasil","mengulang tanpa henti","menghindari langkah"),
+T("Langkah yang membingungkan tetap baik asalkan jumlahnya banyak.",0,"Setiap instruksi harus jelas dan tidak membingungkan.")],[
+M("Data yang diberikan sebelum proses disebut…","input","output","proses","flowline"),
+M("Hasil yang diperoleh setelah proses selesai disebut…","output","input","terminator","decision"),
+M("Pada total belanja, prosesnya adalah…","mengalikan harga dengan jumlah, lalu menjumlahkan","menuliskan harga saja","menghapus jumlah","menampilkan nama"),
+M("Siswa membeli 2 buku Rp5.000 per buku. Inputnya adalah…","harga Rp5.000 dan jumlah 2","Rp10.000","hasil akhir","nama toko"),
+M("Pada pembelian 2 buku Rp5.000, outputnya adalah…","Rp10.000","Rp5.000","2 buku","Rp7.000"),
+T("Semua algoritma harus menerima input dari pengguna.",0,"Ada algoritma yang memakai data tersedia atau menjalankan tugas otomatis."),
+T("Proses adalah langkah atau perhitungan yang dilakukan terhadap masukan.",1),
+M("Membeli 5 pensil seharga Rp2.000. Outputnya…","Rp10.000","Rp7.000","Rp2.000","Rp5.000","2.000 × 5 = Rp10.000."),
+M("Algoritma otomatis tanpa input pengguna memakai…","data yang sudah tersedia","tidak ada data","hanya output","hanya gambar")],[
+M("Langkah pertama algoritma berangkat ke sekolah pada materi adalah…","Bangun tidur","Berangkat","Sarapan","Periksa perlengkapan"),
+M("Sebelum menekan Kirim pada email tugas, sebaiknya…","memeriksa kembali, termasuk lampiran","langsung menutup aplikasi","menghapus pesan","mengganti subjek"),
+M("Pada meminjam buku, setelah petugas mencatat peminjaman kita…","membawa buku sesuai aturan","mencari buku","menunjukkan kartu","memeriksa ketersediaan"),
+T("Menentukan membawa payung memuat keputusan berdasarkan kondisi.",1),
+M("Langkah awal menentukan membawa payung adalah…","memeriksa prakiraan cuaca atau kondisi langit","membawa payung","membeli payung","melipat payung"),
+M("Pada menghitung rata-rata, setelah menjumlahkan nilai kita…","menghitung banyaknya nilai","menuliskan hasil","mencatat nilai","berhenti"),
+T("Urutan algoritma harian dapat disesuaikan keadaan, tetapi tujuan dan langkahnya harus jelas.",1),
+M("Rata-rata dihitung dengan membagi jumlah nilai dengan…","banyak nilai","nilai terbesar","nilai terkecil","angka 10"),
+M("Algoritma mengirim tugas lewat email diawali dengan…","membuka aplikasi email","menekan Kirim","melampirkan berkas","mengisi subjek")],[
+M("Algoritma yang ditulis dengan kalimat biasa disebut bentuk…","deskriptif","pseudocode","flowchart","kode mesin"),
+M("Pseudocode adalah…","kode semu yang menyerupai struktur bahasa pemrograman","gambar berpanah","bahasa mesin","tabel nilai"),
+M("Simbol oval pada flowchart disebut…","terminator","decision","process","flowline","Oval menandai awal atau akhir proses."),
+M("Jajar genjang pada flowchart menunjukkan…","input atau output","keputusan","awal proses","arah panah"),
+M("Persegi panjang pada flowchart berfungsi menunjukkan…","proses atau pengolahan data","akhir proses","keputusan","arah alur"),
+M("Pada pseudocode, tanda >= berarti…","lebih besar dari atau sama dengan","lebih kecil dari","sama dengan","tidak sama dengan"),
+T("Cabang keputusan pada flowchart diberi label yang jelas, misalnya Ya/Tidak.",1),
+M("Pada pseudocode, kata INPUT berarti…","menerima data","menampilkan hasil","memeriksa kondisi","berhenti"),
+T("Flowchart boleh memakai simbol apa saja tanpa memperhatikan fungsinya.",0,"Setiap simbol harus digunakan sesuai fungsinya.")],[
+M("Instruksi dilakukan satu demi satu sesuai susunannya. Struktur ini disebut…","urutan (sequence)","percabangan","perulangan","abstraksi"),
+M("Memilih tindakan berdasarkan suatu kondisi adalah struktur…","percabangan (selection)","urutan","perulangan","output"),
+M("Menjalankan langkah yang sama beberapa kali adalah struktur…","perulangan (iteration)","urutan","percabangan","input"),
+M("Perulangan yang kondisi berhentinya tidak pernah tercapai disebut…","infinite loop","sequence","selection","flowline"),
+T("Perulangan harus memiliki aturan berhenti yang jelas.",1),
+M("Kata yang sering muncul pada percabangan adalah…","jika, maka, jika tidak","untuk, selesai perulangan","masukkan, tampilkan","mulai, akhir"),
+M("Menuliskan angka 1 sampai 5 paling efisien dengan…","perulangan","lima instruksi terpisah","percabangan","menunggu"),
+T("Jika urutan instruksi tertukar, hasil dapat menjadi kurang sesuai.",1),
+M("Pada contoh baterai ≥ 20%, algoritma menampilkan…","Baterai masih cukup","Isi daya ponsel","Selesai","Mulai")],[
+M("Luas persegi panjang dihitung dengan…","panjang × lebar","panjang + lebar","panjang ÷ lebar","panjang − lebar"),
+M("Panjang 8 cm dan lebar 4 cm. Luasnya…","32 cm²","12 cm²","24 cm²","4 cm²"),
+M("Bilangan genap adalah bilangan yang…","habis dibagi 2","tidak habis dibagi 2","lebih dari 10","kurang dari 2"),
+M("Hasil 8 MOD 2 adalah…","0","1","4","2","MOD adalah sisa pembagian; 8 habis dibagi 2."),
+M("Hasil 7 MOD 2 adalah…","1","0","3","2","7 dibagi 2 bersisa 1, sehingga 7 ganjil."),
+M("Nilai 80, 90, dan 70 berjumlah…","240","160","80","230"),
+M("Rata-rata nilai 80, 90, dan 70 adalah…","80","70","90","240","240 ÷ 3 = 80."),
+T("Pada presensi, siswa yang tidak hadir dicatat dengan status “Tidak hadir”.",1),
+M("Data tambahan seperti tanggal dan kelas pada presensi bergantung pada…","tujuan aplikasi","selalu wajib","tidak pernah dipakai","warna layar")],[
+M("Fokus utama abstraksi adalah…","memilih informasi penting dan mengabaikan detail tak relevan","menyusun langkah","menggambar diagram","mengulang proses"),
+M("Fokus utama algoritma adalah…","menyusun langkah-langkah penyelesaian masalah","memilih warna","membuang data","menyimpan gambar"),
+M("Pertanyaan kunci abstraksi adalah…","Informasi apa yang benar-benar dibutuhkan?","Langkah apa dan urutan apa?","Berapa lama prosesnya?","Siapa penggunanya?"),
+M("Pertanyaan kunci algoritma adalah…","Langkah apa yang harus dilakukan dan dalam urutan apa?","Informasi apa yang dibutuhkan?","Warna apa yang dipakai?","Siapa yang membuat?"),
+T("Abstraksi menentukan apa yang penting, algoritma menentukan bagaimana menyelesaikannya.",1),
+M("Data inti presensi menurut abstraksi adalah…","nama, tanggal, dan status kehadiran","warna seragam","tinggi badan","hobi siswa"),
+M("Pada aplikasi rata-rata nilai, data yang tidak berhubungan…","tidak perlu digunakan","wajib dipakai","dihitung dua kali","dijadikan output"),
+T("Abstraksi dan algoritma dapat diterapkan bersama pada satu masalah.",1),
+M("Setelah abstraksi menentukan data nilai yang diperlukan, langkah berikutnya adalah…","menyusun algoritma","menghapus nilai","menggambar ilustrasi","berhenti")],[
+M("Tahapan penting yang terlewat termasuk kesalahan…","langkah tidak lengkap","instruksi membingungkan","urutan tepat","perulangan berhenti"),
+M("Kalimat “lakukan dengan benar” termasuk kesalahan…","instruksi membingungkan","langkah lengkap","urutan benar","pengujian"),
+M("Langkah dilakukan sebelum syaratnya terpenuhi adalah kesalahan…","urutan tidak tepat","tidak ada input","output benar","loop berhenti"),
+M("Proses berjalan terus tanpa akhir disebabkan…","perulangan tanpa batas berhenti","urutan benar","input lengkap","output jelas"),
+M("Kesalahan yang tidak terlihat karena algoritma belum dicoba adalah…","tidak menguji hasil","langkah lengkap","kondisi lengkap","urutan tepat"),
+T("Cara memperbaiki algoritma adalah membaca ulang langkah dan mencoba beberapa contoh input.",1),
+T("Algoritma tidak perlu diuji jika terlihat benar.",0,"Algoritma harus diuji dengan contoh data."),
+M("Setelah mencoba beberapa input, kita memeriksa…","apakah output sesuai tujuan","jumlah halaman","warna teks","nama pembuat"),
+T("Langkah yang tidak lengkap dapat membuat tujuan tidak tercapai.",1)],[
+M("Langkah pertama menyusun algoritma adalah…","memahami masalah","menguji algoritma","memperbaiki","memilih bentuk penulisan"),
+M("Setelah memahami masalah, kita…","menentukan input dan output","menguji algoritma","memperbaiki langkah","menutup masalah"),
+M("Input dan output ditentukan sebelum…","menentukan proses","memahami masalah","selesai menguji","memperbaiki"),
+M("Percabangan ditambahkan pada langkah bila…","ada pilihan","tidak ada data","hasil sudah benar","ada gambar"),
+M("Perulangan ditambahkan bila…","ada pekerjaan yang perlu diulang","ada pilihan","tidak ada input","ada tabel"),
+M("Bentuk penulisan yang dapat dipilih adalah…","bahasa sehari-hari, pseudocode, atau flowchart","hanya flowchart","hanya kode mesin","hanya gambar"),
+M("Pengujian sebaiknya memakai…","data berbeda, termasuk kondisi khusus","satu data saja","tanpa data","data acak tanpa tujuan"),
+T("Jika hasil tidak sesuai, cari langkah yang keliru lalu perbaiki.",1),
+M("Tahap terakhir menyusun algoritma adalah…","memperbaiki jika diperlukan","memahami masalah","menentukan input","memilih bentuk")]];
+function applyTheme(){if(st.theme)document.documentElement.dataset.theme=st.theme;document.body.classList.toggle("noanim",!st.anim)}
+$("#th").onclick=()=>{const dark=matchMedia("(prefers-color-scheme:dark)").matches;const c=st.theme||(dark?"dark":"light");st.theme=c==="dark"?"light":"dark";applyTheme();save()};
+$("#anim").onclick=e=>{st.anim=!st.anim;e.target.setAttribute("aria-pressed",st.anim);applyTheme();save()};
+function conf(){if(!st.anim||matchMedia("(prefers-reduced-motion:reduce)").matches)return;for(let i=0;i<24;i++){const c=document.createElement("div");c.className="cf";c.textContent=["🎉","⭐","✨"][i%3];c.style.left=Math.random()*100+"vw";c.style.animationDelay=Math.random()*.5+"s";document.body.appendChild(c);setTimeout(()=>c.remove(),2400)}}
+function head(){const n=S.filter((_,i)=>done(i)).length;$("#stat").textContent=`Level ${lvl()} · ${xp()} XP · 🏅 ${n}/${S.length}`;$("#pb").style.width=n/S.length*100+"%";$("#pt").textContent=`${n} dari ${S.length} bagian selesai · tersimpan di perangkat ini`;
+$("#nav").innerHTML=`<button data-i="home" class="${st.cur==="home"?"cur":""}">🏠 Beranda</button>`+S.map((s,i)=>{const open=i===0||done(i-1)||done(i);return `<button data-i="${i}" ${open?"":"disabled"} class="${st.cur===i?"cur":""}">${done(i)?"✅":open?"📍":"🔒"} ${String.fromCharCode(65+i)}. ${s.t}</button>`}).join("")+`<button data-i="boss" ${allDone()?"":"disabled"} class="${st.cur==="boss"?"cur":""}">${allDone()?"👹":"🔒"} BOSS TERAKHIR</button>`;
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{st.cur=isNaN(+b.dataset.i)?b.dataset.i:+b.dataset.i;save();show()})}
+$("#cont").onclick=()=>{const i=S.findIndex((_,j)=>!done(j));st.cur=i<0?"boss":i;save();show()};
+function qhtml(q,id){let h=`<p><b>${q.p}</b></p><div id="${id}">`;
+if(q.k==="mc")h+=q.o.map((o,i)=>`<button class="opt" data-a="${i}">${o}</button>`).join("");
+else if(q.k==="tf")h+=`<button class="opt" data-a="0">Benar</button><button class="opt" data-a="1">Salah</button>`;
+else if(q.k==="fill")h+=`<input aria-label="Jawaban" style="min-height:44px;padding:0 10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)"> <button class="p" data-c="1">Periksa</button>`;
+else if(q.k==="order"){q._s=sh(q.o);h+=`<div class="chips" data-pick></div><div>${q._s.map(o=>`<button class="opt" data-o="${o}">${o}</button>`).join("")}</div><button data-r="1">Ulangi susunan</button> <button class="p" data-c="1">Periksa</button>`}
+else if(q.k==="match")h+=q.o.map((m,i)=>`<p>${m[0]} → <select aria-label="${m[0]}" data-m="${i}"><option value="">Pilih…</option>${q.ch.map(c=>`<option>${c}</option>`).join("")}</select></p>`).join("")+`<button class="p" data-c="1">Periksa</button>`;
+return h+`</div><div class="fb" id="${id}f" aria-live="polite"></div><button id="${id}h">💡 Petunjuk</button>`}
+function wire(q,id,cb){const box=$("#"+id),f=$("#"+id+"f");let tries=0,hint=0,pick=[];
+$("#"+id+"h").onclick=()=>{hint=1;f.className="fb";f.textContent="Petunjuk: "+q.h};
+const grade=ok=>{if(ok){f.className="fb good";f.textContent="Tepat! "+q.e;box.querySelectorAll("button,input,select").forEach(x=>x.disabled=true);conf();cb(tries===0&&!hint)}else{tries++;f.className="fb bad";f.textContent=tries>1?"Belum tepat. Konsep: "+q.e:"Belum tepat, coba lagi. Tekan Petunjuk jika perlu."}};
+box.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{const ok=+b.dataset.a===q.a;b.classList.add(ok?"ok":"no");grade(ok)});
+box.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{pick.push(b.dataset.o);b.disabled=true;box.querySelector("[data-pick]").innerHTML=pick.map((p,i)=>`<span>${i+1}. ${p}</span>`).join("")});
+const r=box.querySelector("[data-r]");if(r)r.onclick=()=>{pick=[];box.querySelectorAll("[data-o]").forEach(b=>b.disabled=false);box.querySelector("[data-pick]").innerHTML=""};
+const c=box.querySelector("[data-c]");if(c)c.onclick=()=>{let ok=false;
+if(q.k==="fill")ok=q.a.includes(box.querySelector("input").value.trim().toLowerCase().replace(/\s/g,""));
+if(q.k==="order")ok=pick.length===q.o.length&&pick.every((p,i)=>p===q.o[i]);
+if(q.k==="match")ok=[...box.querySelectorAll("select")].every(s=>s.value===q.o[+s.dataset.m][1]);grade(ok)}}
+function show(){head();const v=$("#v");if(st.cur==="home")return home(v);if(st.cur==="boss")return boss(v);const i=st.cur,s=S[i];
+v.innerHTML=`<div class="card"><small>Bagian ${String.fromCharCode(65+i)} dari ${S.length}</small><h2>${s.t}</h2><p><b>🎯 Tujuan:</b> ${s.g}</p><div class="src"><small>MATERI SUMBER</small>${s.b}</div><div class="card"><b>Ringkasan</b><br>${s.s}</div>
+<button id="ask">🤖 Tanya AI Tutor</button><div id="ai" hidden class="card"><div class="ai"><small>Demo — AI belum terhubung. Jawaban hanya mencari kalimat relevan dari materi, bukan model bahasa.</small></div><div id="chat"></div><input id="aq" maxlength="200" aria-label="Pertanyaan" style="min-height:44px;padding:0 10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);width:70%"> <button id="send">Kirim</button> <button id="clr">Hapus</button></div></div>
+<div class="card" id="ch"></div>
+<div><button id="pv" ${i?"":"disabled"}>← Sebelumnya</button> <button class="p" id="nx" disabled>${i===S.length-1?"Menuju Boss →":"Berikutnya →"}</button></div>`;
+const nx=$("#nx");nx.disabled=!done(i);
+$("#pv").onclick=()=>{st.cur=i-1;save();show()};nx.onclick=()=>{st.cur=i===S.length-1?"boss":i+1;save();show()};
+chal(i,nx);
+
+$("#ask").onclick=()=>$("#ai").hidden=!$("#ai").hidden;$("#clr").onclick=()=>$("#chat").innerHTML="";
+$("#send").onclick=()=>{const t=$("#aq").value.trim().toLowerCase();if(!t)return;const w=t.split(/\W+/).filter(x=>x.length>3);let best=null,sc=0;
+S.forEach((x,j)=>{const tx=(x.t+" "+x.s+" "+x.b.replace(/<[^>]+>/g," ")).toLowerCase();const n=w.filter(k=>tx.includes(k)).length;if(n>sc){sc=n;best=j}});
+$("#chat").innerHTML+=`<p><b>Kamu:</b> ${$("#aq").value.replace(/</g,"&lt;")}</p><p><b>Tutor (demo):</b> ${best===null?"Informasi itu tidak ditemukan dalam materi.":`Lihat bagian ${String.fromCharCode(65+best)} “${S[best].t}”: ${S[best].s}`}</p>`;$("#aq").value=""}}
+function home(v){const n=S.filter((_,i)=>done(i)).length,nx=S.findIndex((_,i)=>!done(i));
+v.innerHTML=`<div class="card" style="text-align:center"><div class="boss">🧭</div><h2>Algoritma Quest</h2><p>Petualangan belajar <b>Algoritma dalam Berpikir Komputasional</b> untuk siswa SMA.</p><p>Jelajahi ${S.length} bagian materi, selesaikan 10 tantangan di setiap bagian, kumpulkan XP, lalu hadapi <b>Boss Terakhir</b>.</p><button class="p" id="go">${n?"Lanjutkan Petualangan":"Mulai Petualangan"}</button></div><div class="card"><b>Cara bermain</b><ol><li>Baca materi pada setiap bagian.</li><li>Kerjakan 10 tantangan. Benar di percobaan pertama: 10 XP; setelah petunjuk atau mencoba ulang: 5 XP.</li><li>Bagian berikutnya terbuka setelah 10 tantangan selesai.</li><li>Selesaikan semua bagian untuk membuka Boss Terakhir.</li></ol><small>Progres tersimpan di browser perangkat ini; belum ada akun atau sinkronisasi lintas perangkat.</small></div>`;
+$("#go").onclick=()=>{st.cur=nx<0?"boss":nx;save();show()}}
+function chal(i,nx){const Q=[S[i].q,...X[i]],d=st.d[i]=st.d[i]||{x:0},a=d.a=d.a||{},box=$("#ch"),n=Object.keys(a).length;
+if(d.ok&&n<Q.length){box.innerHTML=`<h2>⚔️ Tantangan</h2><p>Bagian ini sudah selesai ✅</p>`;nx.disabled=false;return}
+if(n>=Q.length){box.innerHTML=`<h2>⚔️ Tantangan</h2><p class="good"><b>Semua ${Q.length} tantangan selesai! ✅</b></p>`;nx.disabled=false;return}
+const j=Q.findIndex((_,k)=>!(k in a)),q=shq(Q[j]);
+box.innerHTML=`<h2>⚔️ Tantangan ${n+1}/${Q.length}</h2><div class="bar"><i style="width:${n/Q.length*100}%"></i></div>`+qhtml(q,"q")+`<p><button class="p" id="qn" disabled>${n+1===Q.length?"Selesai ✓":"Soal berikutnya →"}</button></p>`;
+wire(q,"q",first=>{const g=first?10:5;a[j]=g;d.x+=g;if(Object.keys(a).length>=Q.length)d.ok=1;save();head();$("#qn").disabled=false});
+$("#qn").onclick=()=>chal(i,nx)}
+function boss(v){if(!allDone()){st.cur=0;return show()}
+if(st.boss&&st.boss.fin)return win(v);
+const qs=BQ.map(shq);st.boss=st.boss||{n:0,r:0,x:0};const b=st.boss;
+if(b.n>=qs.length){b.fin=1;save();return win(v)}
+const q=qs[b.n];v.innerHTML=`<div class="card"><div class="boss">👹</div><h2>BOSS TERAKHIR: Penguasa Langkah Kacau</h2><p>Energi boss</p><div class="bar"><i style="width:${100-b.r/qs.length*100}%"></i></div><small>Soal ${b.n+1} dari ${qs.length}</small>${qhtml(q,"b")}<p><button class="p" id="bn" disabled>Lanjut →</button></p></div>`;
+wire(q,"b",first=>{b.r++;b.x+=first?15:8;save();head();$("#bn").disabled=false});
+$("#bn").onclick=()=>{b.n++;save();show()};
+const f=$("#bf");new MutationObserver(()=>{if(f.className.includes("bad")&&f.textContent.includes("Konsep"))$("#bn").disabled=false}).observe(f,{childList:true})}
+function win(v){const b=st.boss,tot=6,p=Math.round(b.r/tot*100),ok=p>=60;if(ok)conf();
+v.innerHTML=`<div class="card"><h2>${ok?"🏆 Materi Berhasil Ditaklukkan!":"Boss belum kalah"}</h2><p>Benar: ${b.r}/${tot} (${p}%). Syarat lulus: ≥ 60%.</p><p>Total XP: ${xp()} · Level ${lvl()}</p><ul>${S.map((s,i)=>`<li>${s.t}: ${st.d[i].x} XP</li>`).join("")}</ul><p>${ok?"🏅 Lencana: Materi Berhasil Ditaklukkan":"Pelajari kembali bagian materi, lalu coba lagi."}</p><button id="rv">Pelajari Kembali</button> <button class="p" id="rt">Ulangi Boss</button></div>`;
+$("#rv").onclick=()=>{st.cur=0;save();show()};$("#rt").onclick=()=>{st.boss={n:0,r:0,x:0,fin:0};save();show()}}
+applyTheme();$("#anim").setAttribute("aria-pressed",st.anim);show();
+</script></body></html>
